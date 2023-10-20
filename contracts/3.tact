@@ -80,28 +80,22 @@ contract Task3 with Deployable {
       return;
     }
 
+    let a: Int = 0;
 
     if (sender() == self.jettonAddressA) {
-      if (self.aAmount == 0) {
-        send(SendParameters{
-            to: self.jettonAddressB,
-            value: 0, 
-            mode: SendRemainingValue, 
-            bounce: true, 
-            body: TokenTransfer{queryId: 0, amount: 0, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
-        });
-        return;
+      if (self.aAmount != 0) {
+        a = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
       }
-      if ((self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal <= self.bAmount) {
+      if (a <= self.bAmount) {
         send(SendParameters{
             to: self.jettonAddressB,
             value: 0, 
             mode: SendRemainingValue, 
             bounce: true, 
-            body: TokenTransfer{queryId: 0, amount: (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
+            body: TokenTransfer{queryId: 0, amount: a, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
         });
         self.aAmount = self.aAmount + msg.amount;
-        self.bAmount = self.bAmount - (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
+        self.bAmount = self.bAmount - a;
       } else {
         send(SendParameters{
             to: self.jettonAddressA,
@@ -111,27 +105,20 @@ contract Task3 with Deployable {
             body: TokenTransfer{queryId: 0, amount: msg.amount, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
         });
       }
-    } else if (sender() == self.jettonAddressB){
-      if (self.bAmount == 0) {
-        send(SendParameters{
-            to: self.jettonAddressA,
-            value: 0, 
-            mode: SendRemainingValue, 
-            bounce: true, 
-            body: TokenTransfer{queryId: 0, amount: 0, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
-        });
-        return;
+    } else if (sender() == self.jettonAddressB) {
+      if (self.bAmount != 0) {
+        a = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
       }
-      if ((self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal <= self.aAmount) {
+      if (a <= self.aAmount) {
         send(SendParameters{
             to: self.jettonAddressA,
             value: 0, 
             mode: SendRemainingValue, 
             bounce: true, 
-            body: TokenTransfer{queryId: 0, amount: (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
+            body: TokenTransfer{queryId: 0, amount: a, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
         });
         self.bAmount = self.bAmount + msg.amount;
-        self.aAmount = self.aAmount - (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
+        self.aAmount = self.aAmount - a;
       } else {
         send(SendParameters{
             to: self.jettonAddressB,
