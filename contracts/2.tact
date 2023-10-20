@@ -26,8 +26,32 @@ contract Task2 with Deployable {
   }
   
   receive(msg: Refund) {
+
+    require(sender() == self.admin, "Only owner");
+
+    send(
+      SendParameters{
+        to: msg.sender,
+        value: 0, 
+        mode: SendRemainingValue, 
+        bounce: true
+      }
+    ); 
+
   }
 
   receive(msg: Slice) {
+    let outMessage: Cell = beginCell()
+            .storeUint(0x18, 6)
+            .storeAddress(self.admin)
+            .storeCoins(0)
+            .storeUint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .storeRef(beginCell()
+              .storeAddress(sender())
+              .storeRef(msg.asCell())
+              .endCell())
+            .endCell();
+    nativeSendMessage(outMessage, 64);
   }
+
 }
