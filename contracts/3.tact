@@ -90,6 +90,7 @@ contract Task3 with Deployable {
             bounce: true, 
             body: TokenTransfer{queryId: 0, amount: 0, destination: msg.from, responseDestination: myAddress(), customPayload: null, forwardTonAmount: ton("0.01"), forwardPayload: emptySlice()}.toCell()
         });
+        return;
       }
       if ((self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal <= self.bAmount) {
         send(SendParameters{
